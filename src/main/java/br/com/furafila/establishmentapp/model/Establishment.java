@@ -21,7 +21,7 @@ public class Establishment implements Serializable {
 	@Id
 	@Column(name = "id_estabelecimento", columnDefinition = "serial")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long establishmentId;
+	private Long id;
 
 	@Column(name = "razao_social")
 	private String corporateName;
@@ -42,12 +42,12 @@ public class Establishment implements Serializable {
 	@Column(name = "id_imagem_FK", columnDefinition = "int4")
 	private Long imageId;
 
-	public Long getEstablishmentId() {
-		return establishmentId;
+	public Long getId() {
+		return id;
 	}
 
-	public void setEstablishmentId(Long establishmentId) {
-		this.establishmentId = establishmentId;
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public String getCorporateName() {

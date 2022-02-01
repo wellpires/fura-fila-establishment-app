@@ -16,7 +16,4 @@ public class Messages {
 	public static final String STATE_REGISTRATION_IS_REQUIRED = "{com.establishment.new-establishment.state-registration-required}";
 	public static final String STATE_REGISTRATION_IS_NOT_VALID = "{com.establishment.new-establishment.state-registration-not-valid}";
 
-	public static final String STATUS_IS_REQUIRED = "{com.establishment.new-establishment.status-required}";
-
-
 }

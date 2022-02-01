@@ -4,6 +4,6 @@ import br.com.furafila.establishmentapp.dto.NewEstablishmentDTO;
 
 public interface EstablishmentService {
 
-	void createEstablishment(NewEstablishmentDTO newEstablishmentDTO);
+	Long createEstablishment(NewEstablishmentDTO newEstablishmentDTO);
 
 }

@@ -1,15 +1,18 @@
 package br.com.furafila.establishmentapp.controller;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.IOException;
 import java.nio.file.Paths;
 
+import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.Test;
@@ -20,12 +23,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.com.furafila.establishmentapp.request.NewEstablishmentRequest;
+import br.com.furafila.establishmentapp.response.NewEstablishmentResponse;
 import br.com.furafila.establishmentapp.service.EstablishmentService;
 import br.com.furafila.establishmentapp.util.ReplaceCamelCase;
 
@@ -59,8 +64,17 @@ class EstablishmentControllerTest {
 	@Test
 	void shouldSaveEstablishment() throws Exception {
 
-		mockMvc.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
-				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isNoContent());
+		long establishmentId = 12l;
+		when(establishmentService.createEstablishment(any())).thenReturn(establishmentId);
+
+		MvcResult result = mockMvc
+				.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
+						.content(mapper.writeValueAsString(newEstablishmentRequest)))
+				.andExpect(status().isOk()).andReturn();
+
+		NewEstablishmentResponse newEstablishmentResponse = mapper.readValue(result.getResponse().getContentAsString(),
+				NewEstablishmentResponse.class);
+		MatcherAssert.assertThat(establishmentId, equalTo(newEstablishmentResponse.getId()));
 
 		verify(establishmentService, times(1)).createEstablishment(any());
 
@@ -166,18 +180,6 @@ class EstablishmentControllerTest {
 	void shouldNotSaveEstablishmentBecauseStateRegistrationIsNotValid() throws Exception {
 
 		newEstablishmentRequest.getNewEstablishmentDTO().setStateRegistration("123684681681681616168138516816818");
-
-		mockMvc.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
-				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isBadRequest());
-
-		verify(establishmentService, never()).createEstablishment(any());
-
-	}
-
-	@Test
-	void shouldNotSaveEstablishmentBecauseStatusIsRequired() throws Exception {
-
-		newEstablishmentRequest.getNewEstablishmentDTO().setStatus(null);
 
 		mockMvc.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isBadRequest());

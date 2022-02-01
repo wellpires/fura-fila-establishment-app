@@ -16,13 +16,12 @@ public class EstablishmentServiceImpl implements EstablishmentService {
 	private EstablishmentRepository establishmentRepository;
 
 	@Override
-	public void createEstablishment(NewEstablishmentDTO newEstablishmentDTO) {
+	public Long createEstablishment(NewEstablishmentDTO newEstablishmentDTO) {
 
 		Establishment establishment = new EstablishmentBuilder().corporateName(newEstablishmentDTO.getCorporateName())
 				.email(newEstablishmentDTO.getEmail()).cnpj(newEstablishmentDTO.getCnpj())
 				.stateRegistration(newEstablishmentDTO.getStateRegistration()).build();
-		establishmentRepository.save(establishment);
-
+		return establishmentRepository.save(establishment).getId();
 	}
 
 }

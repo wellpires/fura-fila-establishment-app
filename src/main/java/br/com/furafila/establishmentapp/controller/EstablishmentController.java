@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.furafila.establishmentapp.controller.resource.EstablishmentResource;
 import br.com.furafila.establishmentapp.request.NewEstablishmentRequest;
+import br.com.furafila.establishmentapp.response.NewEstablishmentResponse;
 import br.com.furafila.establishmentapp.service.EstablishmentService;
 
 @RestController
@@ -23,9 +24,9 @@ public class EstablishmentController implements EstablishmentResource {
 
 	@Override
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Void> create(@RequestBody @Valid NewEstablishmentRequest newEstablishmentRequest) {
-		establishmentService.createEstablishment(newEstablishmentRequest.getNewEstablishmentDTO());
-		return ResponseEntity.noContent().build();
+	public ResponseEntity<NewEstablishmentResponse> create(@RequestBody @Valid NewEstablishmentRequest newEstablishmentRequest) {
+		Long establishmentId = establishmentService.createEstablishment(newEstablishmentRequest.getNewEstablishmentDTO());
+		return ResponseEntity.ok(new NewEstablishmentResponse(establishmentId));
 	}
 
 }

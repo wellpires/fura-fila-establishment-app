@@ -2,7 +2,9 @@ package br.com.furafila.establishmentapp.controller;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.Test;
@@ -31,12 +33,17 @@ public class EstablishmentServiceImplTest {
 	@Test
 	public void shouldSaveEstablishment() {
 
+		Long establishmentIdSaved = 123l;
+		Establishment establishmentSaved = new Establishment();
+		establishmentSaved.setId(establishmentIdSaved);
+		when(establishmentRepository.save(any())).thenReturn(establishmentSaved);
+
 		NewEstablishmentDTO newEstablishmentDTO = new NewEstablishmentDTO();
 		newEstablishmentDTO.setCorporateName("corporate test");
 		newEstablishmentDTO.setCnpj("123654789984");
 		newEstablishmentDTO.setEmail("teste@email.com");
-		newEstablishmentDTO.setStateRegistration("6549874");;
-		establishmentService.createEstablishment(newEstablishmentDTO);
+		newEstablishmentDTO.setStateRegistration("6549874");
+		Long establishmentId = establishmentService.createEstablishment(newEstablishmentDTO);
 
 		ArgumentCaptor<Establishment> captor = ArgumentCaptor.forClass(Establishment.class);
 
@@ -47,7 +54,7 @@ public class EstablishmentServiceImplTest {
 		assertThat(newEstablishmentDTO.getCorporateName(), equalTo(establishment.getCorporateName()));
 		assertThat(newEstablishmentDTO.getEmail(), equalTo(establishment.getEmail()));
 		assertThat(newEstablishmentDTO.getStateRegistration(), equalTo(establishment.getStateRegistration()));
-		
+		assertThat(establishmentIdSaved, equalTo(establishmentId));
 
 	}
 

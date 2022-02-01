@@ -31,9 +31,6 @@ public class NewEstablishmentDTO {
 	@Size(min = 8, max = 14, message = Messages.STATE_REGISTRATION_IS_NOT_VALID, groups = SecondOrderValidation.class)
 	private String stateRegistration;
 
-	@NotNull(message = Messages.STATUS_IS_REQUIRED, groups = FirstOrderValidation.class)
-	private Boolean status;
-
 	public String getCorporateName() {
 		return corporateName;
 	}
@@ -64,14 +61,6 @@ public class NewEstablishmentDTO {
 
 	public void setStateRegistration(String stateRegistration) {
 		this.stateRegistration = stateRegistration;
-	}
-
-	public Boolean getStatus() {
-		return status;
-	}
-
-	public void setStatus(Boolean status) {
-		this.status = status;
 	}
 
 }

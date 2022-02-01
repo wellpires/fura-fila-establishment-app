@@ -77,7 +77,7 @@ class EstablishmentControllerTest {
 		verify(establishmentService, never()).createEstablishment(any());
 
 	}
-	
+
 	@Test
 	void shouldNotSaveEstablishmentBecauseCorporateNameIsRequired() throws Exception {
 
@@ -89,7 +89,7 @@ class EstablishmentControllerTest {
 		verify(establishmentService, never()).createEstablishment(any());
 
 	}
-	
+
 	@Test
 	void shouldNotSaveEstablishmentBecauseCorporateNameIsNotValid() throws Exception {
 
@@ -101,7 +101,7 @@ class EstablishmentControllerTest {
 		verify(establishmentService, never()).createEstablishment(any());
 
 	}
-	
+
 	@Test
 	void shouldNotSaveEstablishmentBecauseEmailIsRequired() throws Exception {
 
@@ -113,7 +113,7 @@ class EstablishmentControllerTest {
 		verify(establishmentService, never()).createEstablishment(any());
 
 	}
-	
+
 	@Test
 	void shouldNotSaveEstablishmentBecauseEmailIsNotValid() throws Exception {
 
@@ -125,7 +125,7 @@ class EstablishmentControllerTest {
 		verify(establishmentService, never()).createEstablishment(any());
 
 	}
-	
+
 	@Test
 	void shouldNotSaveEstablishmentBecauseCNPJIsRequired() throws Exception {
 
@@ -137,7 +137,7 @@ class EstablishmentControllerTest {
 		verify(establishmentService, never()).createEstablishment(any());
 
 	}
-	
+
 	@Test
 	void shouldNotSaveEstablishmentBecauseCNPJIsNotValid() throws Exception {
 
@@ -149,11 +149,35 @@ class EstablishmentControllerTest {
 		verify(establishmentService, never()).createEstablishment(any());
 
 	}
-	
+
 	@Test
 	void shouldNotSaveEstablishmentBecauseStateRegistrationIsRequired() throws Exception {
 
 		newEstablishmentRequest.getNewEstablishmentDTO().setStateRegistration(null);
+
+		mockMvc.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isBadRequest());
+
+		verify(establishmentService, never()).createEstablishment(any());
+
+	}
+
+	@Test
+	void shouldNotSaveEstablishmentBecauseStateRegistrationIsNotValid() throws Exception {
+
+		newEstablishmentRequest.getNewEstablishmentDTO().setStateRegistration("123684681681681616168138516816818");
+
+		mockMvc.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isBadRequest());
+
+		verify(establishmentService, never()).createEstablishment(any());
+
+	}
+
+	@Test
+	void shouldNotSaveEstablishmentBecauseStatusIsRequired() throws Exception {
+
+		newEstablishmentRequest.getNewEstablishmentDTO().setStatus(null);
 
 		mockMvc.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isBadRequest());

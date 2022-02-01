@@ -3,6 +3,7 @@ package br.com.furafila.establishmentapp.dto;
 import javax.validation.GroupSequence;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.br.CNPJ;
@@ -27,7 +28,11 @@ public class NewEstablishmentDTO {
 	private String cnpj;
 
 	@NotBlank(message = Messages.STATE_REGISTRATION_IS_REQUIRED, groups = FirstOrderValidation.class)
+	@Size(min = 8, max = 14, message = Messages.STATE_REGISTRATION_IS_NOT_VALID, groups = SecondOrderValidation.class)
 	private String stateRegistration;
+
+	@NotNull(message = Messages.STATUS_IS_REQUIRED, groups = FirstOrderValidation.class)
+	private Boolean status;
 
 	public String getCorporateName() {
 		return corporateName;
@@ -59,6 +64,14 @@ public class NewEstablishmentDTO {
 
 	public void setStateRegistration(String stateRegistration) {
 		this.stateRegistration = stateRegistration;
+	}
+
+	public Boolean getStatus() {
+		return status;
+	}
+
+	public void setStatus(Boolean status) {
+		this.status = status;
 	}
 
 }

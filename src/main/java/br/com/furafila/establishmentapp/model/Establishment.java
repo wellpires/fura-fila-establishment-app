@@ -39,7 +39,7 @@ public class Establishment implements Serializable {
 	@Column(name = "email")
 	private String email;
 
-	@Column(name = "id_imagem_FK")
+	@Column(name = "id_imagem_FK", columnDefinition = "int4")
 	private Long imageId;
 
 	public Long getEstablishmentId() {

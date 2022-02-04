@@ -26,7 +26,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.com.furafila.establishmentapp.request.NewEstablishmentRequest;
@@ -53,7 +52,7 @@ class EstablishmentControllerTest {
 	private NewEstablishmentRequest newEstablishmentRequest;
 
 	@BeforeEach
-	public void setup() throws StreamReadException, DatabindException, IOException {
+	public void setup() throws StreamReadException, IOException {
 
 		newEstablishmentRequest = mapper.readValue(
 				Paths.get("src", "test", "resources", "NewEstablishmentRequest.json").toFile(),

@@ -18,6 +18,7 @@ import br.com.furafila.establishmentapp.dto.NewEstablishmentDTO;
 import br.com.furafila.establishmentapp.model.Establishment;
 import br.com.furafila.establishmentapp.repository.EstablishmentRepository;
 import br.com.furafila.establishmentapp.service.EstablishmentService;
+import br.com.furafila.establishmentapp.service.impl.EstablishmentServiceImpl;
 import br.com.furafila.establishmentapp.util.ReplaceCamelCase;
 
 @ExtendWith(SpringExtension.class)
@@ -27,7 +28,7 @@ public class EstablishmentServiceImplTest {
 	@InjectMocks
 	private EstablishmentService establishmentService = new EstablishmentServiceImpl();
 
-	@Mock
+	@Mock	
 	private EstablishmentRepository establishmentRepository;
 
 	@Test

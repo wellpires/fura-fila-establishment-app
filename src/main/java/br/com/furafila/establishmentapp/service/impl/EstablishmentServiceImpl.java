@@ -1,4 +1,4 @@
-package br.com.furafila.establishmentapp.controller;
+package br.com.furafila.establishmentapp.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

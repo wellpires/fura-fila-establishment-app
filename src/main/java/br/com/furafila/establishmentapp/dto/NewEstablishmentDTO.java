@@ -2,7 +2,9 @@ package br.com.furafila.establishmentapp.dto;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.br.CNPJ;
@@ -29,6 +31,14 @@ public class NewEstablishmentDTO {
 	@NotBlank(message = Messages.STATE_REGISTRATION_IS_REQUIRED, groups = FirstOrderValidation.class)
 	@Size(min = 8, max = 14, message = Messages.STATE_REGISTRATION_IS_NOT_VALID, groups = SecondOrderValidation.class)
 	private String stateRegistration;
+
+	@NotNull(message = Messages.LOGIN_IDENTIFICATION_IS_REQUIRED, groups = FirstOrderValidation.class)
+	@Min(value = 1, message = Messages.LOGIN_IDENTIFICATION_IS_NOT_VALID, groups = SecondOrderValidation.class)
+	private Long idLogin;
+
+	@NotNull(message = Messages.IMAGE_IDENTIFICATION_IS_REQUIRED, groups = FirstOrderValidation.class)
+	@Min(value = 1, message = Messages.IMAGE_IDENTIFICATION_IS_NOT_VALID, groups = SecondOrderValidation.class)
+	private Long idImage;
 
 	public String getCorporateName() {
 		return corporateName;
@@ -60,6 +70,22 @@ public class NewEstablishmentDTO {
 
 	public void setStateRegistration(String stateRegistration) {
 		this.stateRegistration = stateRegistration;
+	}
+
+	public Long getIdLogin() {
+		return idLogin;
+	}
+
+	public void setIdLogin(Long idLogin) {
+		this.idLogin = idLogin;
+	}
+
+	public Long getIdImage() {
+		return idImage;
+	}
+
+	public void setIdImage(Long idImage) {
+		this.idImage = idImage;
 	}
 
 }

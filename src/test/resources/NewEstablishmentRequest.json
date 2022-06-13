@@ -4,6 +4,8 @@
 		"email": "teste@email.com",
 		"cnpj": "56456263000164",
 		"stateRegistration": "952855947071",
-		"status": false
+		"status": false,
+		"idLogin": 1,
+		"idImage": 12
 	}
 }

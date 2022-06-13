@@ -42,6 +42,9 @@ public class Establishment implements Serializable {
 	@Column(name = "id_imagem_FK", columnDefinition = "int4")
 	private Long imageId;
 
+	public Establishment() {
+	}
+
 	public Long getId() {
 		return id;
 	}

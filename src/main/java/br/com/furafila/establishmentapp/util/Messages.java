@@ -16,4 +16,10 @@ public class Messages {
 	public static final String STATE_REGISTRATION_IS_REQUIRED = "{com.establishment.new-establishment.state-registration-required}";
 	public static final String STATE_REGISTRATION_IS_NOT_VALID = "{com.establishment.new-establishment.state-registration-not-valid}";
 
+	public static final String LOGIN_IDENTIFICATION_IS_REQUIRED = "{com.establishment.new-establishment.login-identification-required}";
+	public static final String LOGIN_IDENTIFICATION_IS_NOT_VALID = "{com.establishment.new-establishment.login-identification-not-valid}";
+
+	public static final String IMAGE_IDENTIFICATION_IS_REQUIRED = "{com.establishment.new-establishment.image-identification-required}";
+	public static final String IMAGE_IDENTIFICATION_IS_NOT_VALID = "{com.establishment.new-establishment.image-identification-not-valid}";
+
 }

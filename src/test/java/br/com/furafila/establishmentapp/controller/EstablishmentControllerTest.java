@@ -1,18 +1,19 @@
 package br.com.furafila.establishmentapp.controller;
 
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.HashMap;
 
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.Test;
@@ -23,13 +24,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import br.com.furafila.establishmentapp.exception.EstablishmentBasicInfoNotFoundException;
 import br.com.furafila.establishmentapp.request.NewEstablishmentRequest;
-import br.com.furafila.establishmentapp.response.NewEstablishmentResponse;
 import br.com.furafila.establishmentapp.service.EstablishmentService;
 import br.com.furafila.establishmentapp.util.ReplaceCamelCase;
 
@@ -39,6 +41,7 @@ import br.com.furafila.establishmentapp.util.ReplaceCamelCase;
 class EstablishmentControllerTest {
 
 	private static final String ESTABLISHMENT_PATH = "/establishments";
+	private static final String FIND_INITIAL_INFO = ESTABLISHMENT_PATH + "/{loginId}";
 
 	@MockBean
 	private EstablishmentService establishmentService;
@@ -57,23 +60,14 @@ class EstablishmentControllerTest {
 		newEstablishmentRequest = mapper.readValue(
 				Paths.get("src", "test", "resources", "NewEstablishmentRequest.json").toFile(),
 				NewEstablishmentRequest.class);
-
 	}
 
 	@Test
-	void shouldSaveEstablishment() throws Exception {
+	void shouldSaveEstablishmentWithSuccess() throws Exception {
 
-		long establishmentId = 12l;
-		when(establishmentService.createEstablishment(any())).thenReturn(establishmentId);
-
-		MvcResult result = mockMvc
-				.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
-						.content(mapper.writeValueAsString(newEstablishmentRequest)))
-				.andExpect(status().isOk()).andReturn();
-
-		NewEstablishmentResponse newEstablishmentResponse = mapper.readValue(result.getResponse().getContentAsString(),
-				NewEstablishmentResponse.class);
-		MatcherAssert.assertThat(establishmentId, equalTo(newEstablishmentResponse.getId()));
+		mockMvc.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isNoContent())
+				.andReturn();
 
 		verify(establishmentService, times(1)).createEstablishment(any());
 
@@ -185,6 +179,80 @@ class EstablishmentControllerTest {
 
 		verify(establishmentService, never()).createEstablishment(any());
 
+	}
+
+	@Test
+	void shouldNotSaveEstablishmentBecauseIdLoginIsRequired() throws Exception {
+
+		newEstablishmentRequest.getNewEstablishmentDTO().setIdLogin(null);
+
+		mockMvc.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isBadRequest());
+
+		verify(establishmentService, never()).createEstablishment(any());
+
+	}
+
+	@Test
+	void shouldNotSaveEstablishmentBecauseIdLoginIsNotValid() throws Exception {
+
+		newEstablishmentRequest.getNewEstablishmentDTO().setIdLogin(0l);
+
+		mockMvc.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isBadRequest());
+
+		verify(establishmentService, never()).createEstablishment(any());
+
+	}
+
+	@Test
+	void shouldNotSaveEstablishmentBecauseIdImageIsRequired() throws Exception {
+
+		newEstablishmentRequest.getNewEstablishmentDTO().setIdImage(null);
+
+		mockMvc.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isBadRequest());
+
+		verify(establishmentService, never()).createEstablishment(any());
+
+	}
+
+	@Test
+	void shouldNotSaveEstablishmentBecauseIdImageIsNotValid() throws Exception {
+
+		newEstablishmentRequest.getNewEstablishmentDTO().setIdImage(0l);
+
+		mockMvc.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isBadRequest());
+
+		verify(establishmentService, never()).createEstablishment(any());
+
+	}
+
+	@Test
+	void shouldFindEstablishmentInfoWithSuccess() throws JsonProcessingException, Exception {
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("loginId", 12);
+
+		String path = UriComponentsBuilder.fromPath(FIND_INITIAL_INFO).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(get(path).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isOk());
+	}
+
+	@Test
+	void shouldNotFindEstablishmentInfoBecauseWasNotFound() throws JsonProcessingException, Exception {
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("loginId", 12);
+
+		String path = UriComponentsBuilder.fromPath(FIND_INITIAL_INFO).buildAndExpand(param).toUriString();
+
+		when(establishmentService.findInitialInfo(anyLong())).thenThrow(new EstablishmentBasicInfoNotFoundException());
+
+		mockMvc.perform(get(path).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isNotFound());
 	}
 
 }

@@ -1,5 +1,8 @@
 package br.com.furafila.establishmentapp.controller;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
@@ -8,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.IOException;
@@ -24,14 +28,19 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import br.com.furafila.establishmentapp.dto.EstablishmentInfoDTO;
 import br.com.furafila.establishmentapp.exception.EstablishmentBasicInfoNotFoundException;
+import br.com.furafila.establishmentapp.exception.EstablishmentInfoNotFoundException;
+import br.com.furafila.establishmentapp.request.EditEstablishmentRequest;
 import br.com.furafila.establishmentapp.request.NewEstablishmentRequest;
+import br.com.furafila.establishmentapp.response.EstablishmentInfoResponse;
 import br.com.furafila.establishmentapp.service.EstablishmentService;
 import br.com.furafila.establishmentapp.util.ReplaceCamelCase;
 
@@ -41,7 +50,9 @@ import br.com.furafila.establishmentapp.util.ReplaceCamelCase;
 class EstablishmentControllerTest {
 
 	private static final String ESTABLISHMENT_PATH = "/establishments";
-	private static final String FIND_INITIAL_INFO = ESTABLISHMENT_PATH + "/{loginId}";
+	private static final String FIND_INITIAL_INFO = ESTABLISHMENT_PATH + "/login/{loginId}";
+	private static final String FIND_ESTABLISHMENT = ESTABLISHMENT_PATH + "/{establishmentId}";
+	private static final String EDIT_ESTABLISHMENT = ESTABLISHMENT_PATH + "/{establishmentId}";
 
 	@MockBean
 	private EstablishmentService establishmentService;
@@ -53,6 +64,7 @@ class EstablishmentControllerTest {
 	private ObjectMapper mapper;
 
 	private NewEstablishmentRequest newEstablishmentRequest;
+	private EditEstablishmentRequest editEstablishmentRequest;
 
 	@BeforeEach
 	public void setup() throws StreamReadException, IOException {
@@ -60,6 +72,10 @@ class EstablishmentControllerTest {
 		newEstablishmentRequest = mapper.readValue(
 				Paths.get("src", "test", "resources", "NewEstablishmentRequest.json").toFile(),
 				NewEstablishmentRequest.class);
+
+		editEstablishmentRequest = mapper.readValue(
+				Paths.get("src", "test", "resources", "EditEstablishmentRequest.json").toFile(),
+				EditEstablishmentRequest.class);
 	}
 
 	@Test
@@ -69,7 +85,7 @@ class EstablishmentControllerTest {
 				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isNoContent())
 				.andReturn();
 
-		verify(establishmentService, times(1)).createEstablishment(any());
+		verify(establishmentService, times(1)).create(any());
 
 	}
 
@@ -81,7 +97,7 @@ class EstablishmentControllerTest {
 		mockMvc.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isBadRequest());
 
-		verify(establishmentService, never()).createEstablishment(any());
+		verify(establishmentService, never()).create(any());
 
 	}
 
@@ -93,7 +109,7 @@ class EstablishmentControllerTest {
 		mockMvc.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isBadRequest());
 
-		verify(establishmentService, never()).createEstablishment(any());
+		verify(establishmentService, never()).create(any());
 
 	}
 
@@ -105,7 +121,7 @@ class EstablishmentControllerTest {
 		mockMvc.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isBadRequest());
 
-		verify(establishmentService, never()).createEstablishment(any());
+		verify(establishmentService, never()).create(any());
 
 	}
 
@@ -117,7 +133,7 @@ class EstablishmentControllerTest {
 		mockMvc.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isBadRequest());
 
-		verify(establishmentService, never()).createEstablishment(any());
+		verify(establishmentService, never()).create(any());
 
 	}
 
@@ -129,7 +145,7 @@ class EstablishmentControllerTest {
 		mockMvc.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isBadRequest());
 
-		verify(establishmentService, never()).createEstablishment(any());
+		verify(establishmentService, never()).create(any());
 
 	}
 
@@ -141,7 +157,7 @@ class EstablishmentControllerTest {
 		mockMvc.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isBadRequest());
 
-		verify(establishmentService, never()).createEstablishment(any());
+		verify(establishmentService, never()).create(any());
 
 	}
 
@@ -153,7 +169,7 @@ class EstablishmentControllerTest {
 		mockMvc.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isBadRequest());
 
-		verify(establishmentService, never()).createEstablishment(any());
+		verify(establishmentService, never()).create(any());
 
 	}
 
@@ -165,7 +181,7 @@ class EstablishmentControllerTest {
 		mockMvc.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isBadRequest());
 
-		verify(establishmentService, never()).createEstablishment(any());
+		verify(establishmentService, never()).create(any());
 
 	}
 
@@ -177,7 +193,7 @@ class EstablishmentControllerTest {
 		mockMvc.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isBadRequest());
 
-		verify(establishmentService, never()).createEstablishment(any());
+		verify(establishmentService, never()).create(any());
 
 	}
 
@@ -189,7 +205,7 @@ class EstablishmentControllerTest {
 		mockMvc.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isBadRequest());
 
-		verify(establishmentService, never()).createEstablishment(any());
+		verify(establishmentService, never()).create(any());
 
 	}
 
@@ -201,7 +217,7 @@ class EstablishmentControllerTest {
 		mockMvc.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isBadRequest());
 
-		verify(establishmentService, never()).createEstablishment(any());
+		verify(establishmentService, never()).create(any());
 
 	}
 
@@ -213,7 +229,7 @@ class EstablishmentControllerTest {
 		mockMvc.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isBadRequest());
 
-		verify(establishmentService, never()).createEstablishment(any());
+		verify(establishmentService, never()).create(any());
 
 	}
 
@@ -225,7 +241,7 @@ class EstablishmentControllerTest {
 		mockMvc.perform(post(ESTABLISHMENT_PATH).contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isBadRequest());
 
-		verify(establishmentService, never()).createEstablishment(any());
+		verify(establishmentService, never()).create(any());
 
 	}
 
@@ -237,8 +253,7 @@ class EstablishmentControllerTest {
 
 		String path = UriComponentsBuilder.fromPath(FIND_INITIAL_INFO).buildAndExpand(param).toUriString();
 
-		mockMvc.perform(get(path).contentType(MediaType.APPLICATION_JSON)
-				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isOk());
+		mockMvc.perform(get(path).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
 	}
 
 	@Test
@@ -251,8 +266,153 @@ class EstablishmentControllerTest {
 
 		when(establishmentService.findInitialInfo(anyLong())).thenThrow(new EstablishmentBasicInfoNotFoundException());
 
-		mockMvc.perform(get(path).contentType(MediaType.APPLICATION_JSON)
-				.content(mapper.writeValueAsString(newEstablishmentRequest))).andExpect(status().isNotFound());
+		mockMvc.perform(get(path).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound());
+	}
+
+	@Test
+	void shouldFindEstablishment() throws JsonProcessingException, Exception {
+
+		EstablishmentInfoDTO establishmentInfoDTO = new EstablishmentInfoDTO();
+		establishmentInfoDTO.setId(123l);
+		establishmentInfoDTO.setCnpj("123123123123");
+		establishmentInfoDTO.setCorporateName("Corporate Name Teste");
+		establishmentInfoDTO.setEmail("corporate_name@localhost.com");
+		establishmentInfoDTO.setImageId(54l);
+		establishmentInfoDTO.setStateRegistration("12312312312");
+		establishmentInfoDTO.setStatus(Boolean.TRUE);
+
+		when(this.establishmentService.findEstablishment(anyLong())).thenReturn(establishmentInfoDTO);
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("establishmentId", 15);
+
+		String path = UriComponentsBuilder.fromPath(FIND_ESTABLISHMENT).buildAndExpand(param).toUriString();
+		MvcResult result = mockMvc.perform(get(path).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andReturn();
+
+		EstablishmentInfoResponse establishmentInfoResponse = mapper
+				.readValue(result.getResponse().getContentAsString(), EstablishmentInfoResponse.class);
+
+		EstablishmentInfoDTO establishmentInfoDTOReturned = establishmentInfoResponse.getEstablishmentInfoDTO();
+		assertNotNull(establishmentInfoDTOReturned);
+		assertThat(establishmentInfoDTOReturned.getId(), equalTo(establishmentInfoDTO.getId()));
+		assertThat(establishmentInfoDTOReturned.getCnpj(), equalTo(establishmentInfoDTO.getCnpj()));
+		assertThat(establishmentInfoDTOReturned.getCorporateName(), equalTo(establishmentInfoDTO.getCorporateName()));
+		assertThat(establishmentInfoDTOReturned.getEmail(), equalTo(establishmentInfoDTO.getEmail()));
+		assertThat(establishmentInfoDTOReturned.getImageId(), equalTo(establishmentInfoDTO.getImageId()));
+		assertThat(establishmentInfoDTOReturned.getStateRegistration(),
+				equalTo(establishmentInfoDTO.getStateRegistration()));
+		assertThat(establishmentInfoDTOReturned.getStatus(), equalTo(establishmentInfoDTO.getStatus()));
+
+	}
+
+	@Test
+	void shouldNotFindEstablishmentBecauseNotFound() throws JsonProcessingException, Exception {
+
+		when(this.establishmentService.findEstablishment(anyLong()))
+				.thenThrow(new EstablishmentInfoNotFoundException());
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("establishmentId", 15);
+
+		String path = UriComponentsBuilder.fromPath(FIND_ESTABLISHMENT).buildAndExpand(param).toUriString();
+		mockMvc.perform(get(path).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound()).andReturn();
+
+	}
+
+	@Test
+	void shouldEditEstablishmentWithSuccess() throws JsonProcessingException, Exception {
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("establishmentId", 123l);
+		String path = UriComponentsBuilder.fromPath(EDIT_ESTABLISHMENT).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(editEstablishmentRequest))).andExpect(status().isNoContent())
+				.andReturn();
+
+		verify(establishmentService, times(1)).edit(any(), anyLong());
+
+	}
+
+	@Test
+	void shouldNotEditEstablishmentBecauseEstablishmentInfoIsRequired() throws Exception {
+
+		editEstablishmentRequest.setEditEstablishmentDTO(null);
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("establishmentId", 123l);
+		String path = UriComponentsBuilder.fromPath(EDIT_ESTABLISHMENT).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(editEstablishmentRequest))).andExpect(status().isBadRequest());
+
+		verify(establishmentService, never()).edit(any(), anyLong());
+
+	}
+
+	@Test
+	void shouldNotEditEstablishmentBecauseCorporateNameIsRequired() throws Exception {
+
+		editEstablishmentRequest.getEditEstablishmentDTO().setCorporateName(null);
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("establishmentId", 123l);
+		String path = UriComponentsBuilder.fromPath(EDIT_ESTABLISHMENT).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(editEstablishmentRequest))).andExpect(status().isBadRequest());
+
+		verify(establishmentService, never()).edit(any(), anyLong());
+
+	}
+
+	@Test
+	void shouldNotEditEstablishmentBecauseCorporateNameIsNotValid() throws Exception {
+
+		editEstablishmentRequest.getEditEstablishmentDTO().setCorporateName("iasd");
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("establishmentId", 123l);
+		String path = UriComponentsBuilder.fromPath(EDIT_ESTABLISHMENT).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(editEstablishmentRequest))).andExpect(status().isBadRequest());
+
+		verify(establishmentService, never()).edit(any(), anyLong());
+
+	}
+
+	@Test
+	void shouldNotEditEstablishmentBecauseEmailIsRequired() throws Exception {
+
+		editEstablishmentRequest.getEditEstablishmentDTO().setEmail(null);
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("establishmentId", 123l);
+		String path = UriComponentsBuilder.fromPath(EDIT_ESTABLISHMENT).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(editEstablishmentRequest))).andExpect(status().isBadRequest());
+
+		verify(establishmentService, never()).edit(any(), anyLong());
+
+	}
+
+	@Test
+	void shouldNotEditEstablishmentBecauseEmailIsNotValid() throws Exception {
+
+		editEstablishmentRequest.getEditEstablishmentDTO().setEmail("corporatename");
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("establishmentId", 123l);
+		String path = UriComponentsBuilder.fromPath(EDIT_ESTABLISHMENT).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(editEstablishmentRequest))).andExpect(status().isBadRequest());
+
+		verify(establishmentService, never()).edit(any(), anyLong());
+
 	}
 
 }

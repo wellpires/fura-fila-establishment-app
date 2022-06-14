@@ -22,4 +22,12 @@ public class Messages {
 	public static final String IMAGE_IDENTIFICATION_IS_REQUIRED = "{com.establishment.new-establishment.image-identification-required}";
 	public static final String IMAGE_IDENTIFICATION_IS_NOT_VALID = "{com.establishment.new-establishment.image-identification-not-valid}";
 
+	public static final String ESTABLISHMENT_USER_IS_REQUIRED = "{com.establishment.new-establishment-user.establishment-user-required}";
+
+	public static final String ESTABLISHMENT_ID_IS_REQUIRED = "{com.establishment.new-establishment-user.establishment-id-required}";
+	public static final String ESTABLISHMENT_ID_NOT_VALID = "{com.establishment.new-establishment-user.establishment-id-not-valid}";
+
+	public static final String LOGIN_ID_IS_REQUIRED = "{com.establishment.new-establishment-user.login-id-required}";
+	public static final String LOGIN_ID_NOT_VALID = "{com.establishment.new-establishment-user.login-id-not-valid}";
+
 }

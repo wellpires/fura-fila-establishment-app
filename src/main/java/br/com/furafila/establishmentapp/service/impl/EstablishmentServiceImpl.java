@@ -4,10 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.furafila.establishmentapp.builder.EstablishmentBuilder;
+import br.com.furafila.establishmentapp.builder.EstablishmentInfoDTOBuilder;
 import br.com.furafila.establishmentapp.builder.EstablishmentInitialInfoDTOBuilder;
+import br.com.furafila.establishmentapp.dto.EditEstablishmentDTO;
+import br.com.furafila.establishmentapp.dto.EstablishmentInfoDTO;
 import br.com.furafila.establishmentapp.dto.EstablishmentInitialInfoDTO;
 import br.com.furafila.establishmentapp.dto.NewEstablishmentDTO;
 import br.com.furafila.establishmentapp.exception.EstablishmentBasicInfoNotFoundException;
+import br.com.furafila.establishmentapp.exception.EstablishmentInfoNotFoundException;
 import br.com.furafila.establishmentapp.model.Establishment;
 import br.com.furafila.establishmentapp.repository.EstablishmentRepository;
 import br.com.furafila.establishmentapp.service.EstablishmentLoginService;
@@ -23,7 +27,7 @@ public class EstablishmentServiceImpl implements EstablishmentService {
 	private EstablishmentLoginService establishmentLoginService;
 
 	@Override
-	public void createEstablishment(NewEstablishmentDTO newEstablishmentDTO) {
+	public void create(NewEstablishmentDTO newEstablishmentDTO) {
 
 		Establishment establishment = new EstablishmentBuilder().corporateName(newEstablishmentDTO.getCorporateName())
 				.email(newEstablishmentDTO.getEmail()).cnpj(newEstablishmentDTO.getCnpj())
@@ -45,6 +49,31 @@ public class EstablishmentServiceImpl implements EstablishmentService {
 		return new EstablishmentInitialInfoDTOBuilder().id(establishment.getId())
 				.corporateName(establishment.getCorporateName()).status(establishment.getStatus())
 				.imageId(establishment.getImageId()).build();
+	}
+
+	@Override
+	public EstablishmentInfoDTO findEstablishment(Long establishmentId) {
+
+		Establishment establishment = this.establishmentRepository.findById(establishmentId)
+				.orElseThrow(EstablishmentInfoNotFoundException::new);
+
+		return new EstablishmentInfoDTOBuilder().id(establishment.getId())
+				.corporateName(establishment.getCorporateName()).email(establishment.getEmail())
+				.cnpj(establishment.getCnpj()).stateRegistration(establishment.getStateRegistration())
+				.imageId(establishment.getImageId()).status(establishment.getStatus()).build();
+	}
+
+	@Override
+	public void edit(EditEstablishmentDTO editEstablishmentDTO, Long establishmentId) {
+
+		Establishment establishment = this.establishmentRepository.findById(establishmentId)
+				.orElseThrow(EstablishmentInfoNotFoundException::new);
+
+		establishment.setCorporateName(editEstablishmentDTO.getCorporateName());
+		establishment.setEmail(editEstablishmentDTO.getEmail());
+
+		this.establishmentRepository.save(establishment);
+
 	}
 
 }

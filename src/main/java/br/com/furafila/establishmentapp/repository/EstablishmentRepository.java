@@ -10,7 +10,7 @@ import br.com.furafila.establishmentapp.model.Establishment;
 
 public interface EstablishmentRepository extends JpaRepository<Establishment, Long> {
 
-	@Query("select e from EstablishmentLogin el inner join el.establishment e where el.idLogin = :loginId")
+	@Query("select e from EstablishmentLogin el inner join el.establishment e where el.login.id = :loginId")
 	Optional<Establishment> findInitialInfo(@Param("loginId") Long loginId);
 
 }

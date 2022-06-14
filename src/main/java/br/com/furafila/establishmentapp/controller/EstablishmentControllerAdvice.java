@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import br.com.furafila.establishmentapp.exception.EstablishmentBasicInfoNotFoundException;
+import br.com.furafila.establishmentapp.exception.EstablishmentInfoNotFoundException;
 import br.com.furafila.establishmentapp.response.ErrorResponse;
 
 @RestControllerAdvice
@@ -46,6 +47,14 @@ public class EstablishmentControllerAdvice {
 	public ResponseEntity<ErrorResponse> handleEstablishmentBasicInfoNotFoundException(
 			EstablishmentBasicInfoNotFoundException ebiEx) {
 		logger.error(ebiEx.getMessage(), ebiEx);
+		return ResponseEntity.notFound().build();
+	}
+
+	@ExceptionHandler(EstablishmentInfoNotFoundException.class)
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	public ResponseEntity<ErrorResponse> handleEstablishmentInfoNotFoundException(
+			EstablishmentInfoNotFoundException einfEx) {
+		logger.error(einfEx.getMessage(), einfEx);
 		return ResponseEntity.notFound().build();
 	}
 

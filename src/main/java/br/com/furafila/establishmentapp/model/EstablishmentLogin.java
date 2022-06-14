@@ -22,8 +22,9 @@ public class EstablishmentLogin {
 	@JoinColumn(name = "id_estabelecimento_FK", columnDefinition = "int4")
 	private Establishment establishment;
 
-	@Column(name = "id_login_FK", columnDefinition = "int4")
-	private Long idLogin;
+	@ManyToOne
+	@JoinColumn(name = "id_login_FK", columnDefinition = "int4")
+	private Login login;
 
 	public Long getId() {
 		return id;
@@ -33,20 +34,20 @@ public class EstablishmentLogin {
 		this.id = id;
 	}
 
-	public Long getIdLogin() {
-		return idLogin;
-	}
-
-	public void setIdLogin(Long idLogin) {
-		this.idLogin = idLogin;
-	}
-
 	public Establishment getEstablishment() {
 		return establishment;
 	}
 
 	public void setEstablishment(Establishment establishment) {
 		this.establishment = establishment;
+	}
+
+	public Login getLogin() {
+		return login;
+	}
+
+	public void setLogin(Login login) {
+		this.login = login;
 	}
 
 }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import br.com.furafila.establishmentapp.dto.EstablishmentUserDTO;
 import br.com.furafila.establishmentapp.dto.NewEstablishmentUserDTO;
+import br.com.furafila.establishmentapp.exception.EstablishmentLoginNotFoundException;
 import br.com.furafila.establishmentapp.function.EstablishmentLogin2EstablishmentUserDTOFunction;
 import br.com.furafila.establishmentapp.model.Establishment;
 import br.com.furafila.establishmentapp.model.EstablishmentLogin;
@@ -50,6 +51,15 @@ public class EstablishmentLoginServiceImpl implements EstablishmentLoginService 
 
 		return listEstablishmentUsers.stream().map(new EstablishmentLogin2EstablishmentUserDTOFunction())
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	public void deleteEstablishmentUser(Long loginId) {
+
+		EstablishmentLogin establishmentLogin = this.establishmentLoginRepository.findByLoginId(loginId)
+				.orElseThrow(EstablishmentLoginNotFoundException::new);
+
+		this.establishmentLoginRepository.deleteById(establishmentLogin.getId());
 	}
 
 }

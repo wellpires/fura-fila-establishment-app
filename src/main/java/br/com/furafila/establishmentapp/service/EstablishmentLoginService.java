@@ -13,4 +13,6 @@ public interface EstablishmentLoginService {
 
 	List<EstablishmentUserDTO> listEstablishmentUsers(Long establishmentId, Long loginId);
 
+	void deleteEstablishmentUser(Long loginId);
+
 }

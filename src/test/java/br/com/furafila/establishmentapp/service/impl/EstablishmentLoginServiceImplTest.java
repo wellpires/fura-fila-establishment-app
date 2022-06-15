@@ -2,14 +2,17 @@ package br.com.furafila.establishmentapp.service.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.Test;
@@ -20,6 +23,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import br.com.furafila.establishmentapp.dto.EstablishmentUserDTO;
 import br.com.furafila.establishmentapp.dto.NewEstablishmentUserDTO;
+import br.com.furafila.establishmentapp.exception.EstablishmentLoginNotFoundException;
 import br.com.furafila.establishmentapp.model.EstablishmentLogin;
 import br.com.furafila.establishmentapp.model.Login;
 import br.com.furafila.establishmentapp.repository.EstablishmentLoginRepository;
@@ -91,9 +95,41 @@ public class EstablishmentLoginServiceImplTest {
 				.thenReturn(establishmentLogins);
 
 		List<EstablishmentUserDTO> establishmentUsers = establishmentLoginService.listEstablishmentUsers(10l, 9l);
-		
+
 		assertThat(establishmentUsers, hasSize(3));
-		
+
+	}
+
+	@Test
+	public void shouldDeleteEstablishmentUser() {
+
+		EstablishmentLogin establishmentLogin = new EstablishmentLogin();
+		establishmentLogin.setId(12l);
+
+		when(this.establishmentLoginRepository.findByLoginId(anyLong()))
+				.thenReturn(Optional.ofNullable(establishmentLogin));
+
+		establishmentLoginService.deleteEstablishmentUser(123l);
+
+		verify(establishmentLoginRepository, times(1)).deleteById(anyLong());
+
+	}
+
+	@Test
+	public void shouldNotDeleteEstablishmentUserBecauseEstablishmentUserNotFound() {
+
+		EstablishmentLogin establishmentLogin = new EstablishmentLogin();
+		establishmentLogin.setId(12l);
+
+		when(this.establishmentLoginRepository.findByLoginId(anyLong()))
+				.thenThrow(EstablishmentLoginNotFoundException.class);
+
+		assertThrows(EstablishmentLoginNotFoundException.class, () -> {
+			establishmentLoginService.deleteEstablishmentUser(123l);
+		});
+
+		verify(establishmentLoginRepository, never()).deleteById(anyLong());
+
 	}
 
 }

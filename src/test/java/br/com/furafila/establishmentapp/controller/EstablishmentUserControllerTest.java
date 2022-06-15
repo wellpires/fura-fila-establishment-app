@@ -3,7 +3,11 @@ package br.com.furafila.establishmentapp.controller;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -12,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +38,7 @@ import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.com.furafila.establishmentapp.dto.EstablishmentUserDTO;
+import br.com.furafila.establishmentapp.exception.EstablishmentLoginNotFoundException;
 import br.com.furafila.establishmentapp.request.NewEstablishmentUserRequest;
 import br.com.furafila.establishmentapp.response.EstablishmentUserResponse;
 import br.com.furafila.establishmentapp.service.EstablishmentLoginService;
@@ -46,6 +52,7 @@ class EstablishmentUserControllerTest {
 	private static final String ESTABLISHMENT_PATH = "/establishments";
 	private static final String ADD_ESTABLISHMENT_USER_PATH = ESTABLISHMENT_PATH.concat("/users");
 	private static final String ESTABLISHMENT_USER_PATH = ESTABLISHMENT_PATH.concat("/users");
+	private static final String DELETE_ESTABLISHMENT_USER_PATH = ESTABLISHMENT_PATH.concat("/users/{loginId}");
 
 	@MockBean
 	private EstablishmentLoginService establishmentLoginService;
@@ -158,6 +165,33 @@ class EstablishmentUserControllerTest {
 				.readValue(result.getResponse().getContentAsString(), EstablishmentUserResponse.class);
 
 		assertThat(establishmentUserResponse.getEstablishmentUserDTO(), hasSize(3));
+
+	}
+
+	@Test
+	public void shouldDeleteEstablishmentUser() throws Exception {
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("loginId", 123);
+		String path = UriComponentsBuilder.fromPath(DELETE_ESTABLISHMENT_USER_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(delete(path)).andExpect(status().isNoContent()).andDo(print());
+
+		verify(establishmentLoginService, times(1)).deleteEstablishmentUser(anyLong());
+
+	}
+
+	@Test
+	public void shouldNotDeleteEstablishmentUserBecauseNotFound() throws Exception {
+
+		doThrow(new EstablishmentLoginNotFoundException()).when(establishmentLoginService)
+				.deleteEstablishmentUser(anyLong());
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("loginId", 123);
+		String path = UriComponentsBuilder.fromPath(DELETE_ESTABLISHMENT_USER_PATH).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(delete(path)).andExpect(status().isNotFound()).andDo(print());
 
 	}
 

@@ -6,6 +6,7 @@ public class EstablishmentInitialInfoDTO {
 	private String corporateName;
 	private Boolean status;
 	private Long idImage;
+	private Long stockId;
 
 	public Long getIdEstablishment() {
 		return idEstablishment;
@@ -37,6 +38,14 @@ public class EstablishmentInitialInfoDTO {
 
 	public void setIdImage(Long idImage) {
 		this.idImage = idImage;
+	}
+
+	public Long getStockId() {
+		return stockId;
+	}
+
+	public void setStockId(Long stockId) {
+		this.stockId = stockId;
 	}
 
 }

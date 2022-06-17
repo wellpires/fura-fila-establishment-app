@@ -10,12 +10,14 @@ import br.com.furafila.establishmentapp.dto.EditEstablishmentDTO;
 import br.com.furafila.establishmentapp.dto.EstablishmentInfoDTO;
 import br.com.furafila.establishmentapp.dto.EstablishmentInitialInfoDTO;
 import br.com.furafila.establishmentapp.dto.NewEstablishmentDTO;
+import br.com.furafila.establishmentapp.dto.StockIdDTO;
 import br.com.furafila.establishmentapp.exception.EstablishmentBasicInfoNotFoundException;
 import br.com.furafila.establishmentapp.exception.EstablishmentInfoNotFoundException;
 import br.com.furafila.establishmentapp.model.Establishment;
 import br.com.furafila.establishmentapp.repository.EstablishmentRepository;
 import br.com.furafila.establishmentapp.service.EstablishmentLoginService;
 import br.com.furafila.establishmentapp.service.EstablishmentService;
+import br.com.furafila.establishmentapp.service.StockApiService;
 
 @Service
 public class EstablishmentServiceImpl implements EstablishmentService {
@@ -25,6 +27,9 @@ public class EstablishmentServiceImpl implements EstablishmentService {
 
 	@Autowired
 	private EstablishmentLoginService establishmentLoginService;
+
+	@Autowired
+	private StockApiService stockService;
 
 	@Override
 	public void create(NewEstablishmentDTO newEstablishmentDTO) {
@@ -46,9 +51,11 @@ public class EstablishmentServiceImpl implements EstablishmentService {
 		Establishment establishment = establishmentRepository.findInitialInfo(loginId)
 				.orElseThrow(EstablishmentBasicInfoNotFoundException::new);
 
+		StockIdDTO stockIdDTO = stockService.findStockId(establishment.getId());
+
 		return new EstablishmentInitialInfoDTOBuilder().id(establishment.getId())
 				.corporateName(establishment.getCorporateName()).status(establishment.getStatus())
-				.imageId(establishment.getImageId()).build();
+				.imageId(establishment.getImageId()).stockId(stockIdDTO.getId()).build();
 	}
 
 	@Override

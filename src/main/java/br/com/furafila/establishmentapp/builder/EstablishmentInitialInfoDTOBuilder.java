@@ -8,6 +8,7 @@ public class EstablishmentInitialInfoDTOBuilder {
 	private String corporateName;
 	private Boolean status;
 	private Long imageId;
+	private Long stockId;
 
 	public EstablishmentInitialInfoDTOBuilder id(Long id) {
 		this.id = id;
@@ -29,12 +30,18 @@ public class EstablishmentInitialInfoDTOBuilder {
 		return this;
 	}
 
+	public EstablishmentInitialInfoDTOBuilder stockId(Long stockId) {
+		this.stockId = stockId;
+		return this;
+	}
+
 	public EstablishmentInitialInfoDTO build() {
 		EstablishmentInitialInfoDTO establishmentInitialInfoDTO = new EstablishmentInitialInfoDTO();
 		establishmentInitialInfoDTO.setIdEstablishment(id);
 		establishmentInitialInfoDTO.setCorporateName(corporateName);
 		establishmentInitialInfoDTO.setStatus(status);
 		establishmentInitialInfoDTO.setIdImage(imageId);
+		establishmentInitialInfoDTO.setStockId(stockId);
 		return establishmentInitialInfoDTO;
 	}
 

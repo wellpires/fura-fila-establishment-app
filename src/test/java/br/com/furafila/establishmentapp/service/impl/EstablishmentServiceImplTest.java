@@ -25,12 +25,14 @@ import br.com.furafila.establishmentapp.dto.EditEstablishmentDTO;
 import br.com.furafila.establishmentapp.dto.EstablishmentInfoDTO;
 import br.com.furafila.establishmentapp.dto.EstablishmentInitialInfoDTO;
 import br.com.furafila.establishmentapp.dto.NewEstablishmentDTO;
+import br.com.furafila.establishmentapp.dto.StockIdDTO;
 import br.com.furafila.establishmentapp.exception.EstablishmentBasicInfoNotFoundException;
 import br.com.furafila.establishmentapp.exception.EstablishmentInfoNotFoundException;
 import br.com.furafila.establishmentapp.model.Establishment;
 import br.com.furafila.establishmentapp.repository.EstablishmentRepository;
 import br.com.furafila.establishmentapp.service.EstablishmentLoginService;
 import br.com.furafila.establishmentapp.service.EstablishmentService;
+import br.com.furafila.establishmentapp.service.StockApiService;
 import br.com.furafila.establishmentapp.util.ReplaceCamelCase;
 
 @ExtendWith(SpringExtension.class)
@@ -45,6 +47,9 @@ public class EstablishmentServiceImplTest {
 
 	@Mock
 	private EstablishmentLoginService establishmentLoginService;
+
+	@Mock
+	private StockApiService stockService;
 
 	@Test
 	public void shouldSaveEstablishment() {
@@ -91,6 +96,10 @@ public class EstablishmentServiceImplTest {
 		establishment.setImageId(30l);
 		when(establishmentRepository.findInitialInfo(anyLong())).thenReturn(Optional.ofNullable(establishment));
 
+		StockIdDTO stockIdDTO = new StockIdDTO();
+		stockIdDTO.setId(123l);
+		when(stockService.findStockId(anyLong())).thenReturn(stockIdDTO);
+
 		EstablishmentInitialInfoDTO establishmentInitialInfoDTO = establishmentService.findInitialInfo(12l);
 
 		assertNotNull(establishmentInitialInfoDTO);
@@ -98,6 +107,7 @@ public class EstablishmentServiceImplTest {
 		assertThat(establishmentInitialInfoDTO.getCorporateName(), equalTo(establishment.getCorporateName()));
 		assertThat(establishmentInitialInfoDTO.getStatus(), equalTo(establishment.getStatus()));
 		assertThat(establishmentInitialInfoDTO.getIdImage(), equalTo(establishment.getImageId()));
+		assertThat(establishmentInitialInfoDTO.getStockId(), equalTo(stockIdDTO.getId()));
 
 	}
 

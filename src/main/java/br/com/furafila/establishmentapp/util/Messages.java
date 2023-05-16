@@ -30,4 +30,7 @@ public class Messages {
 	public static final String LOGIN_ID_IS_REQUIRED = "{com.establishment.new-establishment-user.login-id-required}";
 	public static final String LOGIN_ID_NOT_VALID = "{com.establishment.new-establishment-user.login-id-not-valid}";
 
+	public static final String EDIT_STATUS_ESTABLISHMENT_INFO_IS_NULL = "{com.establishment.edit-status.establishment-info-required}";
+	public static final String EDIT_STATUS_ESTABLISHMENT_STATUS_IS_NULL = "{com.establishment.edit-status.establishment-status-required}";
+
 }

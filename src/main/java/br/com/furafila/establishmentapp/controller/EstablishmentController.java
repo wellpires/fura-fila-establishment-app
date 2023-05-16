@@ -1,5 +1,7 @@
 package br.com.furafila.establishmentapp.controller;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +16,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.furafila.establishmentapp.controller.resource.EstablishmentResource;
+import br.com.furafila.establishmentapp.dto.EstablishmentDTO;
 import br.com.furafila.establishmentapp.dto.EstablishmentInfoDTO;
 import br.com.furafila.establishmentapp.dto.EstablishmentInitialInfoDTO;
 import br.com.furafila.establishmentapp.request.EditEstablishmentRequest;
+import br.com.furafila.establishmentapp.request.EstablishmentStatusRequest;
 import br.com.furafila.establishmentapp.request.NewEstablishmentRequest;
 import br.com.furafila.establishmentapp.response.EstablishmentInfoResponse;
 import br.com.furafila.establishmentapp.response.EstablishmentInitialInfoResponse;
+import br.com.furafila.establishmentapp.response.EstablishmentsResponse;
 import br.com.furafila.establishmentapp.service.EstablishmentService;
 
 @RestController
@@ -62,6 +67,25 @@ public class EstablishmentController implements EstablishmentResource {
 			@PathVariable("establishmentId") Long establishmentId) {
 
 		this.establishmentService.edit(editEstablishmentRequest.getEditEstablishmentDTO(), establishmentId);
+
+		return ResponseEntity.noContent().build();
+	}
+
+	@Override
+	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<EstablishmentsResponse> listEstablishments() {
+
+		List<EstablishmentDTO> establishmentsDTOs = establishmentService.listEstablishments();
+
+		return ResponseEntity.ok(new EstablishmentsResponse(establishmentsDTOs));
+	}
+
+	@Override
+	@PutMapping(path = "/{establishmentId}/status", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Void> changeStatus(@RequestBody @Valid EstablishmentStatusRequest establishmentStatusRequest,
+			@PathVariable("establishmentId") Long establishmentId) {
+
+		establishmentService.editStatus(establishmentStatusRequest.getEstablishmentStatusDTO(), establishmentId);
 
 		return ResponseEntity.noContent().build();
 	}

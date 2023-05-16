@@ -2,6 +2,7 @@ package br.com.furafila.establishmentapp.service.impl;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -11,6 +12,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -21,9 +23,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import br.com.furafila.establishmentapp.builder.EstablishmentDummyBuilder;
 import br.com.furafila.establishmentapp.dto.EditEstablishmentDTO;
 import br.com.furafila.establishmentapp.dto.EstablishmentInfoDTO;
 import br.com.furafila.establishmentapp.dto.EstablishmentInitialInfoDTO;
+import br.com.furafila.establishmentapp.dto.EstablishmentStatusDTO;
 import br.com.furafila.establishmentapp.dto.NewEstablishmentDTO;
 import br.com.furafila.establishmentapp.dto.StockIdDTO;
 import br.com.furafila.establishmentapp.exception.EstablishmentBasicInfoNotFoundException;
@@ -190,6 +194,64 @@ public class EstablishmentServiceImplTest {
 		});
 
 		verify(this.establishmentRepository, never()).save(any());
+	}
+
+	@Test
+	public void shouldListEstablishments() {
+
+		List<Establishment> establishmentsBuilt = new EstablishmentDummyBuilder().itemsAmount(10l).buildList();
+
+		when(establishmentRepository.findAll()).thenReturn(establishmentsBuilt);
+
+		establishmentService.listEstablishments();
+
+	}
+
+	@Test
+	public void shouldNotListEstablishmentsBecauseIsEmpty() {
+
+		List<Establishment> establishmentsBuilt = new EstablishmentDummyBuilder().itemsAmount(0).buildList();
+
+		when(establishmentRepository.findAll()).thenReturn(establishmentsBuilt);
+
+		establishmentService.listEstablishments();
+
+	}
+
+	@Test
+	public void shouldEditStatus() {
+
+		Establishment establishment = new Establishment();
+		establishment.setStatus(Boolean.TRUE);
+		when(establishmentRepository.findById(anyLong())).thenReturn(Optional.ofNullable(establishment));
+
+		EstablishmentStatusDTO establishmentStatusDTO = new EstablishmentStatusDTO();
+		establishmentStatusDTO.setStatus(Boolean.FALSE);
+		establishmentService.editStatus(establishmentStatusDTO, 10l);
+
+		ArgumentCaptor<Establishment> establishmentCaptor = ArgumentCaptor.forClass(Establishment.class);
+		verify(establishmentRepository).save(establishmentCaptor.capture());
+
+		Establishment establishmentCaught = establishmentCaptor.getValue();
+
+		assertFalse(establishmentCaught.getStatus());
+
+	}
+
+	@Test
+	public void shouldNotEditStatusBecauseEstablishmentNotFound() {
+
+		when(establishmentRepository.findById(anyLong())).thenThrow(new EstablishmentInfoNotFoundException());
+
+		EstablishmentStatusDTO establishmentStatusDTO = new EstablishmentStatusDTO();
+		establishmentStatusDTO.setStatus(Boolean.FALSE);
+
+		assertThrows(EstablishmentInfoNotFoundException.class, () -> {
+			establishmentService.editStatus(establishmentStatusDTO, 10l);
+		});
+
+		verify(establishmentRepository, never()).save(any(Establishment.class));
+
 	}
 
 }

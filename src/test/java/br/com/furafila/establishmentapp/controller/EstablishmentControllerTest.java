@@ -1,7 +1,13 @@
 package br.com.furafila.establishmentapp.controller;
 
+import static br.com.furafila.establishmentapp.matchers.ZeroValue.zeroValue;
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.blankOrNullString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -17,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -35,12 +42,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import br.com.furafila.establishmentapp.builder.EstablishmentDTODummyBuilder;
+import br.com.furafila.establishmentapp.dto.EstablishmentDTO;
 import br.com.furafila.establishmentapp.dto.EstablishmentInfoDTO;
+import br.com.furafila.establishmentapp.dto.EstablishmentStatusDTO;
 import br.com.furafila.establishmentapp.exception.EstablishmentBasicInfoNotFoundException;
 import br.com.furafila.establishmentapp.exception.EstablishmentInfoNotFoundException;
 import br.com.furafila.establishmentapp.request.EditEstablishmentRequest;
+import br.com.furafila.establishmentapp.request.EstablishmentStatusRequest;
 import br.com.furafila.establishmentapp.request.NewEstablishmentRequest;
 import br.com.furafila.establishmentapp.response.EstablishmentInfoResponse;
+import br.com.furafila.establishmentapp.response.EstablishmentsResponse;
 import br.com.furafila.establishmentapp.service.EstablishmentService;
 import br.com.furafila.establishmentapp.util.ReplaceCamelCase;
 
@@ -53,6 +65,8 @@ class EstablishmentControllerTest {
 	private static final String FIND_INITIAL_INFO = ESTABLISHMENT_PATH + "/login/{loginId}";
 	private static final String FIND_ESTABLISHMENT = ESTABLISHMENT_PATH + "/{establishmentId}";
 	private static final String EDIT_ESTABLISHMENT = ESTABLISHMENT_PATH + "/{establishmentId}";
+	private static final String LIST_ESTABLISHMENTS = ESTABLISHMENT_PATH;
+	private static final String CHANGE_ESTABLISHMENT_STATUS = ESTABLISHMENT_PATH + "/{establishmentId}/status";
 
 	@MockBean
 	private EstablishmentService establishmentService;
@@ -65,6 +79,7 @@ class EstablishmentControllerTest {
 
 	private NewEstablishmentRequest newEstablishmentRequest;
 	private EditEstablishmentRequest editEstablishmentRequest;
+	private EstablishmentStatusRequest establishmentStatusRequest;
 
 	@BeforeEach
 	public void setup() throws StreamReadException, IOException {
@@ -76,6 +91,10 @@ class EstablishmentControllerTest {
 		editEstablishmentRequest = mapper.readValue(
 				Paths.get("src", "test", "resources", "EditEstablishmentRequest.json").toFile(),
 				EditEstablishmentRequest.class);
+
+		establishmentStatusRequest = mapper.readValue(
+				Paths.get("src", "test", "resources", "EstablishmentStatusRequest.json").toFile(),
+				EstablishmentStatusRequest.class);
 	}
 
 	@Test
@@ -412,6 +431,85 @@ class EstablishmentControllerTest {
 				.content(mapper.writeValueAsString(editEstablishmentRequest))).andExpect(status().isBadRequest());
 
 		verify(establishmentService, never()).edit(any(), anyLong());
+
+	}
+
+	@Test
+	void shouldListEstablishments() throws JsonProcessingException, Exception {
+
+		int itemsAmount = 10;
+
+		List<EstablishmentDTO> establishments = new EstablishmentDTODummyBuilder().itemsAmout(itemsAmount)
+				.buildList();
+
+		when(establishmentService.listEstablishments()).thenReturn(establishments);
+
+		MvcResult result = mockMvc.perform(get(LIST_ESTABLISHMENTS).contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk()).andReturn();
+
+		EstablishmentsResponse establishmentsResponse = mapper.readValue(result.getResponse().getContentAsString(),
+				EstablishmentsResponse.class);
+
+		List<EstablishmentDTO> establishmentsDTO = establishmentsResponse.getEstablishmentsDTO();
+		assertThat(establishmentsDTO, hasSize(itemsAmount));
+
+		for (EstablishmentDTO establishmentDTO : establishmentsDTO) {
+
+			assertThat(establishmentDTO.getId(), allOf(not(nullValue()), not(zeroValue())));
+			assertThat(establishmentDTO.getCnpj(), not(blankOrNullString()));
+			assertThat(establishmentDTO.getCorporateName(), not(blankOrNullString()));
+			assertThat(establishmentDTO.getEmail(), not(blankOrNullString()));
+			assertThat(establishmentDTO.getStateRegistration(), not(blankOrNullString()));
+			assertNotNull(establishmentDTO.getStatus());
+
+		}
+
+	}
+
+	@Test
+	void shouldChangeStatus() throws JsonProcessingException, Exception {
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("establishmentId", 123l);
+		String path = UriComponentsBuilder.fromPath(CHANGE_ESTABLISHMENT_STATUS).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(establishmentStatusRequest))).andExpect(status().isNoContent());
+
+		verify(establishmentService, times(1)).editStatus(any(EstablishmentStatusDTO.class), anyLong());
+
+	}
+
+	@Test
+	void shouldNotChangeStatusBecauseEstablishmentInfoIsNull() throws JsonProcessingException, Exception {
+
+		establishmentStatusRequest.setEstablishmentStatusDTO(null);
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("establishmentId", 123l);
+		String path = UriComponentsBuilder.fromPath(CHANGE_ESTABLISHMENT_STATUS).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(establishmentStatusRequest))).andExpect(status().isBadRequest());
+
+		verify(establishmentService, never()).editStatus(any(EstablishmentStatusDTO.class), anyLong());
+
+	}
+
+	@Test
+	void shouldNotChangeStatusBecauseEstablishmentStatusIsNull() throws JsonProcessingException, Exception {
+
+		establishmentStatusRequest.getEstablishmentStatusDTO().setStatus(null);
+		;
+
+		HashMap<String, Object> param = new HashMap<>();
+		param.put("establishmentId", 123l);
+		String path = UriComponentsBuilder.fromPath(CHANGE_ESTABLISHMENT_STATUS).buildAndExpand(param).toUriString();
+
+		mockMvc.perform(put(path).contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(establishmentStatusRequest))).andExpect(status().isBadRequest());
+
+		verify(establishmentService, never()).editStatus(any(EstablishmentStatusDTO.class), anyLong());
 
 	}
 
